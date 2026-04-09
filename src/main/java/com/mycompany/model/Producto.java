@@ -3,7 +3,7 @@ package com.mycompany.model;
 
 /**
  *
- * @author Windows
+ * @author Manuela
  */
 public class Producto {
     private String codigo;

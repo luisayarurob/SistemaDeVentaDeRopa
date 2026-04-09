@@ -2,6 +2,7 @@ package com.mycompany.model;
 
 /**
  * Clase que representa un cliente de la tienda
+ * @author JuanFeDevMaster
  */
 public class Cliente {
     private int id;
