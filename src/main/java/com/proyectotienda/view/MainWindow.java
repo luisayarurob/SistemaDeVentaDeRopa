@@ -4,6 +4,18 @@
  */
 package com.proyectotienda.view;
 
+import com.proyectotienda.model.Cliente;
+import com.proyectotienda.model.Producto;
+import com.proyectotienda.model.VentaDetalle;
+import com.proyectotienda.service.ClienteService;
+import com.proyectotienda.service.ProductoService;
+import com.proyectotienda.service.VentaService;
+import com.proyectotienda.service.CalculadorTotalVenta;
+import com.proyectotienda.repository.VentaRepository;
+import com.proyectotienda.repository.ClienteRepository;
+
+import com.proyectotienda.service.VentaService;
+
 /**
  *
  * @author aleja
@@ -11,12 +23,18 @@ package com.proyectotienda.view;
 public class MainWindow extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainWindow.class.getName());
-
+    private VentaService ventaService;
+    private ClienteService clienteService;
+    private ProductoService productoService;
+    private java.util.List<VentaDetalle> productosVentaActual;
+    private Cliente clienteSeleccionado;
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
         initComponents();
+        inicializarServicios();
+        cargarDatosIniciales();
     }
 
     /**
@@ -289,6 +307,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         tabMenu.addTab("Ventas", tabVentas);
 
+        btnAgregarProductos.addActionListener(this::btnAgregarProductosActionPerformed);
+        btnGuardarVenta.addActionListener(this::btnGuardarVentaActionPerformed);
+        btnCancelarVenta.addActionListener(this::btnCancelarVentaActionPerformed);
+        comboBoxCliente.addActionListener(this::comboBoxClienteActionPerformed);
+
         btnGuardarClientes.setText("Guardar");
         btnGuardarClientes.addActionListener(this::btnGuardarClientesActionPerformed);
 
@@ -430,9 +453,173 @@ public class MainWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnEliminarProductosActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void inicializarServicios() {
+        this.ventaService = new VentaService(new VentaRepository(), new CalculadorTotalVenta());
+        this.clienteService = new ClienteService(new ClienteRepository());
+        this.productoService = new ProductoService();
+        this.productosVentaActual = new java.util.ArrayList<>();
+        this.clienteSeleccionado = null;
+    }
+
+    private void cargarDatosIniciales() {
+        cargarClientesEnComboBox();
+        configurarTablaVentas();
+        actualizarTotalVenta();
+        lblFechaVenta.setText("Fecha: " + java.time.LocalDate.now().toString());
+    }
+
+    private void cargarClientesEnComboBox() {
+        comboBoxCliente.removeAllItems();
+        for (Cliente cliente : clienteService.getAllClients()) {
+            comboBoxCliente.addItem(cliente.getName());
+        }
+    }
+
+    private void configurarTablaVentas() {
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{"Producto", "Cantidad", "Precio Unitario", "Subtotal"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tablaVentas.setModel(model);
+    }
+
+    private void actualizarTablaVentas() {
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tablaVentas.getModel();
+        model.setRowCount(0);
+        
+        for (VentaDetalle detalle : productosVentaActual) {
+            model.addRow(new Object[]{
+                detalle.getProducto().getNombre(),
+                detalle.getCantidad(),
+                detalle.getPrecioUnitario(),
+                detalle.getSubtotal()
+            });
+        }
+    }
+
+    private void actualizarTotalVenta() {
+        double total = ventaService.calcularTotal(new java.util.ArrayList<>(productosVentaActual));
+        lblTotalVenta.setText("Total: $" + String.format("%.2f", total));
+    }
+
+    private void btnAgregarProductosActionPerformed(java.awt.event.ActionEvent evt) {
+        java.util.List<Producto> productos = productoService.getAllProductos();
+        if (productos.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "No hay productos disponibles");
+            return;
+        }
+        
+        // Crear lista de nombres de productos para el combo box
+        String[] nombresProductos = productos.stream()
+            .map(Producto::getNombre)
+            .toArray(String[]::new);
+        
+        String selectedProduct = (String) javax.swing.JOptionPane.showInputDialog(
+            this,
+            "Seleccione un producto:",
+            "Agregar Producto",
+            javax.swing.JOptionPane.QUESTION_MESSAGE,
+            null,
+            nombresProductos,
+            nombresProductos[0]
+        );
+        
+        if (selectedProduct != null) {
+            // Encontrar el producto seleccionado
+            Producto producto = productos.stream()
+                .filter(p -> p.getNombre().equals(selectedProduct))
+                .findFirst()
+                .orElse(null);
+            
+            if (producto != null) {
+                // Pedir cantidad
+                String cantidadStr = javax.swing.JOptionPane.showInputDialog(
+                    this,
+                    "Cantidad para " + producto.getNombre() + ":",
+                    "1"
+                );
+                
+                try {
+                    int cantidad = Integer.parseInt(cantidadStr);
+                    if (cantidad <= 0) {
+                        javax.swing.JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a 0");
+                        return;
+                    }
+                    
+                    VentaDetalle detalle = new VentaDetalle(
+                        java.util.UUID.randomUUID().toString(),
+                        producto,
+                        cantidad,
+                        producto.getPrecio()
+                    );
+                    productosVentaActual.add(detalle);
+                    actualizarTablaVentas();
+                    actualizarTotalVenta();
+                    
+                } catch (NumberFormatException e) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Cantidad inválida");
+                }
+            }
+        }
+    }
+
+    private void btnGuardarVentaActionPerformed(java.awt.event.ActionEvent evt) {
+        if (clienteSeleccionado == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un cliente");
+            return;
+        }
+        
+        if (productosVentaActual.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Agregue al menos un producto");
+            return;
+        }
+        
+        try {
+            String idVenta = java.util.UUID.randomUUID().toString();
+            String fecha = java.time.LocalDate.now().toString();
+            
+            ventaService.registrarVenta(
+                idVenta,
+                clienteSeleccionado,
+                new java.util.ArrayList<>(productosVentaActual),
+                fecha
+            );
+            
+            javax.swing.JOptionPane.showMessageDialog(this, "Venta guardada exitosamente");
+            
+            // Limpiar la venta actual
+            productosVentaActual.clear();
+            clienteSeleccionado = null;
+            comboBoxCliente.setSelectedIndex(-1);
+            actualizarTablaVentas();
+            actualizarTotalVenta();
+            
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error al guardar la venta: " + e.getMessage());
+        }
+    }
+
+    private void btnCancelarVentaActionPerformed(java.awt.event.ActionEvent evt) {
+        productosVentaActual.clear();
+        clienteSeleccionado = null;
+        comboBoxCliente.setSelectedIndex(-1);
+        actualizarTablaVentas();
+        actualizarTotalVenta();
+    }
+
+    private void comboBoxClienteActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedIndex = comboBoxCliente.getSelectedIndex();
+        if (selectedIndex >= 0 && selectedIndex < clienteService.getAllClients().size()) {
+            clienteSeleccionado = clienteService.getAllClients().get(selectedIndex);
+        } else {
+            clienteSeleccionado = null;
+        }
+    }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
