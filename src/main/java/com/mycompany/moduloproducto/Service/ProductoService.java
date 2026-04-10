@@ -4,10 +4,11 @@
  */
 package com.mycompany.moduloproducto.Service;
 
-import com.mycompany.moduloproducto.Model.Producto;
+import java.util.List;
+
+import com.mycompany.model.Producto;
 import com.mycompany.moduloproducto.Repository.IProductoRepository;
 import com.mycompany.moduloproducto.Repository.ProductoRepository;
-import java.util.List;
 /**
  *
  * @author Windows

@@ -4,9 +4,10 @@
  */
 package com.mycompany.moduloproducto.Repository;
 
-import com.mycompany.moduloproducto.Model.Producto;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.mycompany.model.Producto;
 
 /**
  *
