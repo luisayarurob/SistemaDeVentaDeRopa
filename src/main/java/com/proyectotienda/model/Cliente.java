@@ -1,8 +1,12 @@
-package com.mycompany.model;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.proyectotienda.model;
 
 /**
- * Clase que representa un cliente de la tienda
- * @author JuanFeDevMaster
+ *
+ * @author aleja
  */
 public class Cliente {
     private int id;

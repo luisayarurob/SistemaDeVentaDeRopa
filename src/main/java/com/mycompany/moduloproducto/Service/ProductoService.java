@@ -6,9 +6,9 @@ package com.mycompany.moduloproducto.Service;
 
 import java.util.List;
 
-import com.mycompany.model.Producto;
 import com.mycompany.moduloproducto.Repository.IProductoRepository;
 import com.mycompany.moduloproducto.Repository.ProductoRepository;
+import com.proyectotienda.model.Producto;
 /**
  *
  * @author Windows

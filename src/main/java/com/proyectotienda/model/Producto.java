@@ -1,5 +1,6 @@
 
-package com.mycompany.model;
+
+package com.proyectotienda.model;
 
 /**
  *

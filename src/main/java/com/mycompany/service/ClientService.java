@@ -2,9 +2,9 @@ package com.mycompany.service;
 
 import java.util.List;
 
-import com.mycompany.model.Cliente;
 import com.mycompany.repository.ClientRepository;
 import com.mycompany.repository.IClientRepository;
+import com.proyectotienda.model.Cliente;
 
 public class ClientService {
     private final IClientRepository clientRepository;

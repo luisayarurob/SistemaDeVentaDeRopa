@@ -3,7 +3,7 @@ package com.mycompany.repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mycompany.model.Cliente;
+import com.proyectotienda.model.Cliente;
 
 public class ClientRepository implements IClientRepository {
     private final List<Cliente> clients;
