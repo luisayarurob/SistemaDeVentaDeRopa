@@ -62,6 +62,7 @@ public class Ventas {
 
     @Override
     public String toString() {
-        return "Ventas{" + "id=" + id + ", cliente=" + cliente.getName() + ", total=" + total + ", fecha=" + fecha + '}';
+        String nombreCliente = (cliente != null) ? cliente.getNombre() : "Sin cliente";
+        return "Ventas{" + "id=" + id + ", cliente=" + nombreCliente + ", total=" + total + ", fecha=" + fecha + '}';
     }
 }
