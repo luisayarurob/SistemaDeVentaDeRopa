@@ -19,20 +19,18 @@ import com.proyectotienda.service.VentaService;
  * @author aleja
  */
 public class MainWindow extends javax.swing.JFrame {
-            // Lógica básica para ventas
-            private java.util.List<VentaDetalle> productosVentaActual = new java.util.ArrayList<>();
-            private Cliente clienteSeleccionado = null;
-            private java.util.List<java.util.List<VentaDetalle>> ventasRealizadas = new java.util.ArrayList<>(); // Solo para mantener ventas en memoria si se requiere
-        // Lógica básica para productos
-        private java.util.List<Producto> listaProductos = new java.util.ArrayList<>();
-        private javax.swing.table.DefaultTableModel productosTableModel;
-    
+    // Lógica básica para ventas
+    private java.util.List<VentaDetalle> productosVentaActual = new java.util.ArrayList<>();
+    private Cliente clienteSeleccionado = null;
+    private java.util.List<java.util.List<VentaDetalle>> ventasRealizadas = new java.util.ArrayList<>(); // Solo para mantener ventas en memoria si se requiere
+    // Lógica básica para productos
+    private java.util.List<Producto> listaProductos = new java.util.ArrayList<>();
+    private javax.swing.table.DefaultTableModel productosTableModel;
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainWindow.class.getName());
     private VentaService ventaService;
     private ClienteService clienteService;
     private ProductoService productoService;
-    private java.util.List<VentaDetalle> productosVentaActual;
-    private Cliente clienteSeleccionado;
 
     // Lógica básica para clientes
     private java.util.List<Cliente> listaClientes = new java.util.ArrayList<>();
@@ -103,6 +101,8 @@ public class MainWindow extends javax.swing.JFrame {
         lblCantidad = new javax.swing.JLabel();
         txtCantidad = new javax.swing.JTextField();
         lblListadoProductos = new javax.swing.JLabel();
+        lblColor = new javax.swing.JLabel();
+        txtColor = new javax.swing.JTextField();
         tabVentas = new javax.swing.JPanel();
         comboBoxCliente = new javax.swing.JComboBox<>();
         lblVentas = new javax.swing.JLabel();
@@ -140,6 +140,7 @@ public class MainWindow extends javax.swing.JFrame {
         btnGuardarProductos.addActionListener(this::btnGuardarProductosActionPerformed);
 
         btnActualizarProductos.setText("Actualizar");
+        btnActualizarProductos.addActionListener(this::btnActualizarProductosActionPerformed);
 
         lblPrecio.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         lblPrecio.setText("Precio:");
@@ -178,6 +179,10 @@ public class MainWindow extends javax.swing.JFrame {
         lblListadoProductos.setFont(new java.awt.Font("Liberation Sans", 1, 15)); // NOI18N
         lblListadoProductos.setText("Listado Productos");
 
+        lblColor.setText("Color:");
+
+        txtColor.addActionListener(this::txtColorActionPerformed);
+
         javax.swing.GroupLayout tabProductosLayout = new javax.swing.GroupLayout(tabProductos);
         tabProductos.setLayout(tabProductosLayout);
         tabProductosLayout.setHorizontalGroup(
@@ -185,34 +190,38 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(tabProductosLayout.createSequentialGroup()
                 .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(tabProductosLayout.createSequentialGroup()
-                        .addGap(60, 60, 60)
-                        .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnGuardarProductos, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
-                            .addComponent(lblCodigo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblNombreProductos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblTalla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblCantidad, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(txtNombreProductos, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
-                                .addComponent(txtCodigo)
-                                .addComponent(txtTalla)
-                                .addComponent(txtPrecio)
-                                .addComponent(txtCantidad))
-                            .addGroup(tabProductosLayout.createSequentialGroup()
-                                .addComponent(btnActualizarProductos)
-                                .addGap(44, 44, 44)
-                                .addComponent(btnEliminarProductos, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(tabProductosLayout.createSequentialGroup()
                         .addGap(159, 159, 159)
                         .addComponent(lblProductos))
                     .addGroup(tabProductosLayout.createSequentialGroup()
                         .addGap(22, 22, 22)
                         .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblListadoProductos)
-                            .addComponent(scrollTablaProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(scrollTablaProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblListadoProductos)))
+                    .addGroup(tabProductosLayout.createSequentialGroup()
+                        .addGap(89, 89, 89)
+                        .addComponent(btnGuardarProductos, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(48, 48, 48)
+                        .addComponent(btnActualizarProductos)
+                        .addGap(35, 35, 35)
+                        .addComponent(btnEliminarProductos, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(tabProductosLayout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblColor, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(lblCodigo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblNombreProductos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblTalla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblCantidad, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtNombreProductos, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
+                            .addComponent(txtCodigo)
+                            .addComponent(txtTalla)
+                            .addComponent(txtPrecio)
+                            .addComponent(txtCantidad)
+                            .addComponent(txtColor))))
                 .addContainerGap(26, Short.MAX_VALUE))
         );
         tabProductosLayout.setVerticalGroup(
@@ -240,12 +249,16 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblCantidad))
-                .addGap(33, 33, 33)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnEliminarProductos)
+                    .addComponent(txtColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblColor))
+                .addGap(34, 34, 34)
+                .addGroup(tabProductosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGuardarProductos)
                     .addComponent(btnActualizarProductos)
-                    .addComponent(btnGuardarProductos))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                    .addComponent(btnEliminarProductos))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
                 .addComponent(lblListadoProductos)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scrollTablaProductos, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -344,11 +357,6 @@ public class MainWindow extends javax.swing.JFrame {
         );
 
         tabMenu.addTab("Ventas", tabVentas);
-
-        btnAgregarProductos.addActionListener(this::btnAgregarProductosActionPerformed);
-        btnGuardarVenta.addActionListener(this::btnGuardarVentaActionPerformed);
-        btnCancelarVenta.addActionListener(this::btnCancelarVentaActionPerformed);
-        comboBoxCliente.addActionListener(this::comboBoxClienteActionPerformed);
 
         btnGuardarClientes.setText("Guardar");
         btnGuardarClientes.addActionListener(this::btnGuardarClientesActionPerformed);
@@ -508,7 +516,7 @@ public class MainWindow extends javax.swing.JFrame {
             String codigo = txtCodigo.getText().trim();
             String nombre = txtNombreProductos.getText().trim();
             String talla = txtTalla.getText().trim();
-            String color = ""; // Si tienes campo de color, usa txtColor.getText().trim();
+            String color = txtColor.getText().trim();
             double precio = Double.parseDouble(txtPrecio.getText().trim());
             int stock = Integer.parseInt(txtCantidad.getText().trim());
             if (codigo.isEmpty() || nombre.isEmpty()) return;
@@ -536,6 +544,14 @@ public class MainWindow extends javax.swing.JFrame {
             limpiarCamposProducto();
         }
     }//GEN-LAST:event_btnEliminarProductosActionPerformed
+
+    private void btnActualizarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarProductosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnActualizarProductosActionPerformed
+
+    private void txtColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtColorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtColorActionPerformed
     // Actualiza la tabla de clientes con los datos en memoria
     private void actualizarTablaClientes() {
         clientesTableModel.setRowCount(0);
@@ -746,6 +762,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel lblCantidad;
     private javax.swing.JLabel lblClientes;
     private javax.swing.JLabel lblCodigo;
+    private javax.swing.JLabel lblColor;
     private javax.swing.JLabel lblEmail;
     private javax.swing.JLabel lblFechaVenta;
     private javax.swing.JLabel lblId;
@@ -772,6 +789,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTable tablaVentas;
     private javax.swing.JTextField txtCantidad;
     private javax.swing.JTextField txtCodigo;
+    private javax.swing.JTextField txtColor;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtId;
     private javax.swing.JTextField txtNombreCliente;
