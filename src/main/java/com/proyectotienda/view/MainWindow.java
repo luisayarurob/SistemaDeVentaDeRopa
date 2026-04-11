@@ -19,6 +19,10 @@ import com.proyectotienda.service.VentaService;
  * @author aleja
  */
 public class MainWindow extends javax.swing.JFrame {
+            // Lógica básica para ventas
+            private java.util.List<VentaDetalle> productosVentaActual = new java.util.ArrayList<>();
+            private Cliente clienteSeleccionado = null;
+            private java.util.List<java.util.List<VentaDetalle>> ventasRealizadas = new java.util.ArrayList<>(); // Solo para mantener ventas en memoria si se requiere
         // Lógica básica para productos
         private java.util.List<Producto> listaProductos = new java.util.ArrayList<>();
         private javax.swing.table.DefaultTableModel productosTableModel;
@@ -40,6 +44,9 @@ public class MainWindow extends javax.swing.JFrame {
         initComponents();
         inicializarServicios();
         cargarDatosIniciales();
+        configurarTablaVentas();
+        actualizarTablaVentas();
+        actualizarTotalVenta();
 
         // Configurar modelo de tabla para productos
         productosTableModel = new javax.swing.table.DefaultTableModel(
@@ -572,14 +579,12 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void cargarDatosIniciales() {
         cargarClientesEnComboBox();
-        configurarTablaVentas();
-        actualizarTotalVenta();
         lblFechaVenta.setText("Fecha: " + java.time.LocalDate.now().toString());
     }
 
     private void cargarClientesEnComboBox() {
         comboBoxCliente.removeAllItems();
-        for (Cliente cliente : clienteService.getAllClients()) {
+        for (Cliente cliente : listaClientes) {
             comboBoxCliente.addItem(cliente.getNombre());
         }
     }
@@ -600,7 +605,6 @@ public class MainWindow extends javax.swing.JFrame {
     private void actualizarTablaVentas() {
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tablaVentas.getModel();
         model.setRowCount(0);
-        
         for (VentaDetalle detalle : productosVentaActual) {
             model.addRow(new Object[]{
                 detalle.getProducto().getNombre(),
@@ -612,22 +616,22 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void actualizarTotalVenta() {
-        double total = ventaService.calcularTotal(new java.util.ArrayList<>(productosVentaActual));
+        double total = 0.0;
+        for (VentaDetalle detalle : productosVentaActual) {
+            total += detalle.getSubtotal();
+        }
         lblTotalVenta.setText("Total: $" + String.format("%.2f", total));
     }
 
     private void btnAgregarProductosActionPerformed(java.awt.event.ActionEvent evt) {
-        java.util.List<Producto> productos = productoService.getAllProductos();
-        if (productos.isEmpty()) {
+        if (listaProductos.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, "No hay productos disponibles");
             return;
         }
-        
         // Crear lista de nombres de productos para el combo box
-        String[] nombresProductos = productos.stream()
+        String[] nombresProductos = listaProductos.stream()
             .map(Producto::getNombre)
             .toArray(String[]::new);
-        
         String selectedProduct = (String) javax.swing.JOptionPane.showInputDialog(
             this,
             "Seleccione un producto:",
@@ -637,14 +641,12 @@ public class MainWindow extends javax.swing.JFrame {
             nombresProductos,
             nombresProductos[0]
         );
-        
         if (selectedProduct != null) {
             // Encontrar el producto seleccionado
-            Producto producto = productos.stream()
+            Producto producto = listaProductos.stream()
                 .filter(p -> p.getNombre().equals(selectedProduct))
                 .findFirst()
                 .orElse(null);
-            
             if (producto != null) {
                 // Pedir cantidad
                 String cantidadStr = javax.swing.JOptionPane.showInputDialog(
@@ -652,14 +654,12 @@ public class MainWindow extends javax.swing.JFrame {
                     "Cantidad para " + producto.getNombre() + ":",
                     "1"
                 );
-                
                 try {
                     int cantidad = Integer.parseInt(cantidadStr);
                     if (cantidad <= 0) {
                         javax.swing.JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a 0");
                         return;
                     }
-                    
                     VentaDetalle detalle = new VentaDetalle(
                         java.util.UUID.randomUUID().toString(),
                         producto,
@@ -669,7 +669,6 @@ public class MainWindow extends javax.swing.JFrame {
                     productosVentaActual.add(detalle);
                     actualizarTablaVentas();
                     actualizarTotalVenta();
-                    
                 } catch (NumberFormatException e) {
                     javax.swing.JOptionPane.showMessageDialog(this, "Cantidad inválida");
                 }
@@ -678,44 +677,26 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void btnGuardarVentaActionPerformed(java.awt.event.ActionEvent evt) {
-        if (clienteSeleccionado == null) {
+        int clienteIndex = comboBoxCliente.getSelectedIndex();
+        if (clienteIndex < 0 || clienteIndex >= listaClientes.size()) {
             javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un cliente");
             return;
         }
-        
         if (productosVentaActual.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, "Agregue al menos un producto");
             return;
         }
-        
-        try {
-            String idVenta = java.util.UUID.randomUUID().toString();
-            String fecha = java.time.LocalDate.now().toString();
-            
-            ventaService.registrarVenta(
-                idVenta,
-                clienteSeleccionado,
-                new java.util.ArrayList<>(productosVentaActual),
-                fecha
-            );
-            
-            javax.swing.JOptionPane.showMessageDialog(this, "Venta guardada exitosamente");
-            
-            // Limpiar la venta actual
-            productosVentaActual.clear();
-            clienteSeleccionado = null;
-            comboBoxCliente.setSelectedIndex(-1);
-            actualizarTablaVentas();
-            actualizarTotalVenta();
-            
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error al guardar la venta: " + e.getMessage());
-        }
+        // Guardar la venta en memoria (opcional, aquí solo limpiamos)
+        ventasRealizadas.add(new java.util.ArrayList<>(productosVentaActual));
+        javax.swing.JOptionPane.showMessageDialog(this, "Venta guardada exitosamente");
+        productosVentaActual.clear();
+        comboBoxCliente.setSelectedIndex(-1);
+        actualizarTablaVentas();
+        actualizarTotalVenta();
     }
 
     private void btnCancelarVentaActionPerformed(java.awt.event.ActionEvent evt) {
         productosVentaActual.clear();
-        clienteSeleccionado = null;
         comboBoxCliente.setSelectedIndex(-1);
         actualizarTablaVentas();
         actualizarTotalVenta();
@@ -723,8 +704,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void comboBoxClienteActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedIndex = comboBoxCliente.getSelectedIndex();
-        if (selectedIndex >= 0 && selectedIndex < clienteService.getAllClients().size()) {
-            clienteSeleccionado = clienteService.getAllClients().get(selectedIndex);
+        if (selectedIndex >= 0 && selectedIndex < listaClientes.size()) {
+            clienteSeleccionado = listaClientes.get(selectedIndex);
         } else {
             clienteSeleccionado = null;
         }
