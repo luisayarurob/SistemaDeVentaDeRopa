@@ -483,7 +483,7 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnGuardarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarClientesActionPerformed
+    private void btnGuardarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event-btnGuardarClientesActionPerformed
         // Agregar cliente de forma básica
         try {
             int id = Integer.parseInt(txtId.getText().trim());
@@ -498,9 +498,9 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (NumberFormatException e) {
             // Ignorar entrada inválida
         }
-    }//GEN-LAST:event_btnGuardarClientesActionPerformed
+    }//GEN-LAST:event-btnGuardarClientesActionPerformed
 
-    private void btnEliminarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarClientesActionPerformed
+    private void btnEliminarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event-btnEliminarClientesActionPerformed
         // Eliminar cliente seleccionado
         int fila = tablaClientes.getSelectedRow();
         if (fila >= 0 && fila < listaClientes.size()) {
@@ -508,9 +508,9 @@ public class MainWindow extends javax.swing.JFrame {
             actualizarTablaClientes();
             limpiarCamposCliente();
         }
-    }//GEN-LAST:event_btnEliminarClientesActionPerformed
+    }//GEN-LAST:event-btnEliminarClientesActionPerformed
 
-    private void btnGuardarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarProductosActionPerformed
+    private void btnGuardarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event-btnGuardarProductosActionPerformed
         // Agregar producto de forma básica
         try {
             String codigo = txtCodigo.getText().trim();
@@ -533,9 +533,9 @@ public class MainWindow extends javax.swing.JFrame {
         } catch (NumberFormatException e) {
             // Ignorar entrada inválida
         }
-    }//GEN-LAST:event_btnGuardarProductosActionPerformed
+    }//GEN-LAST:event-btnGuardarProductosActionPerformed
 
-    private void btnEliminarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarProductosActionPerformed
+    private void btnEliminarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event-btnEliminarProductosActionPerformed
         // Eliminar producto seleccionado
         int fila = tablaProductos.getSelectedRow();
         if (fila >= 0 && fila < listaProductos.size()) {
@@ -543,15 +543,15 @@ public class MainWindow extends javax.swing.JFrame {
             actualizarTablaProductos();
             limpiarCamposProducto();
         }
-    }//GEN-LAST:event_btnEliminarProductosActionPerformed
+    }//GEN-LAST:event-btnEliminarProductosActionPerformed
 
-    private void btnActualizarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarProductosActionPerformed
+    private void btnActualizarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event-btnActualizarProductosActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnActualizarProductosActionPerformed
+    }//GEN-LAST:event-btnActualizarProductosActionPerformed
 
-    private void txtColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtColorActionPerformed
+    private void txtColorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event-txtColorActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtColorActionPerformed
+    }//GEN-LAST:event-txtColorActionPerformed
     // Actualiza la tabla de clientes con los datos en memoria
     private void actualizarTablaClientes() {
         clientesTableModel.setRowCount(0);
@@ -583,6 +583,9 @@ public class MainWindow extends javax.swing.JFrame {
         txtTalla.setText("");
         txtPrecio.setText("");
         txtCantidad.setText("");
+        if (txtColor != null) {
+            txtColor.setText("");
+        }
     }
 
     private void inicializarServicios() {
