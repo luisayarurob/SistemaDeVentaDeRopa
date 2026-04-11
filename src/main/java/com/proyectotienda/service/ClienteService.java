@@ -4,10 +4,11 @@
  */
 package com.proyectotienda.service;
 
+import java.util.List;
+
 import com.proyectotienda.model.Cliente;
 import com.proyectotienda.repository.ClienteRepository;
 import com.proyectotienda.repository.IClienteRepository;
-import java.util.List;
 
 /**
  *
@@ -20,7 +21,7 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    public void registrarCliente(int id, String name, String email) {
+    public void registrarCliente(int id, String name, String email, String telefono) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre es obligatorio.");
         }
@@ -29,7 +30,7 @@ public class ClienteService {
             throw new IllegalArgumentException("El correo es obligatorio.");
         }
 
-        Cliente client = new Cliente(id, name, email);
+        Cliente client = new Cliente(id, name, email, telefono);
         clienteRepository.save(client);
     }
 

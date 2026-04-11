@@ -7,13 +7,11 @@ package com.proyectotienda.view;
 import com.proyectotienda.model.Cliente;
 import com.proyectotienda.model.Producto;
 import com.proyectotienda.model.VentaDetalle;
+import com.proyectotienda.repository.ClienteRepository;
+import com.proyectotienda.repository.VentaRepository;
+import com.proyectotienda.service.CalculadorTotalVenta;
 import com.proyectotienda.service.ClienteService;
 import com.proyectotienda.service.ProductoService;
-import com.proyectotienda.service.VentaService;
-import com.proyectotienda.service.CalculadorTotalVenta;
-import com.proyectotienda.repository.VentaRepository;
-import com.proyectotienda.repository.ClienteRepository;
-
 import com.proyectotienda.service.VentaService;
 
 /**
@@ -471,7 +469,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void cargarClientesEnComboBox() {
         comboBoxCliente.removeAllItems();
         for (Cliente cliente : clienteService.getAllClients()) {
-            comboBoxCliente.addItem(cliente.getName());
+            comboBoxCliente.addItem(cliente.getNombre());
         }
     }
 
