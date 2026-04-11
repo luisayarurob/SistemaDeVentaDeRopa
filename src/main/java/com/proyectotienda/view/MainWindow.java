@@ -19,6 +19,9 @@ import com.proyectotienda.service.VentaService;
  * @author aleja
  */
 public class MainWindow extends javax.swing.JFrame {
+        // Lógica básica para productos
+        private java.util.List<Producto> listaProductos = new java.util.ArrayList<>();
+        private javax.swing.table.DefaultTableModel productosTableModel;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainWindow.class.getName());
     private VentaService ventaService;
@@ -26,6 +29,10 @@ public class MainWindow extends javax.swing.JFrame {
     private ProductoService productoService;
     private java.util.List<VentaDetalle> productosVentaActual;
     private Cliente clienteSeleccionado;
+
+    // Lógica básica para clientes
+    private java.util.List<Cliente> listaClientes = new java.util.ArrayList<>();
+    private javax.swing.table.DefaultTableModel clientesTableModel;
     /**
      * Creates new form MainWindow
      */
@@ -33,6 +40,32 @@ public class MainWindow extends javax.swing.JFrame {
         initComponents();
         inicializarServicios();
         cargarDatosIniciales();
+
+        // Configurar modelo de tabla para productos
+        productosTableModel = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{"Código", "Nombre", "Talla", "Color", "Precio", "Stock"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tablaProductos.setModel(productosTableModel);
+        actualizarTablaProductos();
+
+        // Configurar modelo de tabla para clientes
+        clientesTableModel = new javax.swing.table.DefaultTableModel(
+            new Object[][]{},
+            new String[]{"Id", "Nombre", "Email", "Teléfono"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tablaClientes.setModel(clientesTableModel);
+        actualizarTablaClientes();
     }
 
     /**
@@ -436,20 +469,98 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarClientesActionPerformed
-        // TODO add your handling code here:
+        // Agregar cliente de forma básica
+        try {
+            int id = Integer.parseInt(txtId.getText().trim());
+            String nombre = txtNombreCliente.getText().trim();
+            String email = txtEmail.getText().trim();
+            String telefono = txtTelefono.getText().trim();
+            if (nombre.isEmpty()) return;
+            Cliente nuevo = new Cliente(id, nombre, email, telefono);
+            listaClientes.add(nuevo);
+            actualizarTablaClientes();
+            limpiarCamposCliente();
+        } catch (NumberFormatException e) {
+            // Ignorar entrada inválida
+        }
     }//GEN-LAST:event_btnGuardarClientesActionPerformed
 
     private void btnEliminarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarClientesActionPerformed
-        // TODO add your handling code here:
+        // Eliminar cliente seleccionado
+        int fila = tablaClientes.getSelectedRow();
+        if (fila >= 0 && fila < listaClientes.size()) {
+            listaClientes.remove(fila);
+            actualizarTablaClientes();
+            limpiarCamposCliente();
+        }
     }//GEN-LAST:event_btnEliminarClientesActionPerformed
 
     private void btnGuardarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarProductosActionPerformed
-        // TODO add your handling code here:
+        // Agregar producto de forma básica
+        try {
+            String codigo = txtCodigo.getText().trim();
+            String nombre = txtNombreProductos.getText().trim();
+            String talla = txtTalla.getText().trim();
+            String color = ""; // Si tienes campo de color, usa txtColor.getText().trim();
+            double precio = Double.parseDouble(txtPrecio.getText().trim());
+            int stock = Integer.parseInt(txtCantidad.getText().trim());
+            if (codigo.isEmpty() || nombre.isEmpty()) return;
+            Producto nuevo = new Producto();
+            nuevo.setCodigo(codigo);
+            nuevo.setNombre(nombre);
+            nuevo.setTalla(talla);
+            nuevo.setColor(color);
+            nuevo.setPrecio(precio);
+            nuevo.setStock(stock);
+            listaProductos.add(nuevo);
+            actualizarTablaProductos();
+            limpiarCamposProducto();
+        } catch (NumberFormatException e) {
+            // Ignorar entrada inválida
+        }
     }//GEN-LAST:event_btnGuardarProductosActionPerformed
 
     private void btnEliminarProductosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarProductosActionPerformed
-        // TODO add your handling code here:
+        // Eliminar producto seleccionado
+        int fila = tablaProductos.getSelectedRow();
+        if (fila >= 0 && fila < listaProductos.size()) {
+            listaProductos.remove(fila);
+            actualizarTablaProductos();
+            limpiarCamposProducto();
+        }
     }//GEN-LAST:event_btnEliminarProductosActionPerformed
+    // Actualiza la tabla de clientes con los datos en memoria
+    private void actualizarTablaClientes() {
+        clientesTableModel.setRowCount(0);
+        for (Cliente c : listaClientes) {
+            clientesTableModel.addRow(new Object[]{c.getId(), c.getNombre(), c.getEmail(), c.getTelefono()});
+        }
+    }
+
+    // Limpia los campos de entrada de cliente
+    private void limpiarCamposCliente() {
+        txtId.setText("");
+        txtNombreCliente.setText("");
+        txtEmail.setText("");
+        txtTelefono.setText("");
+    }
+
+    // Actualiza la tabla de productos con los datos en memoria
+    private void actualizarTablaProductos() {
+        productosTableModel.setRowCount(0);
+        for (Producto p : listaProductos) {
+            productosTableModel.addRow(new Object[]{p.getCodigo(), p.getNombre(), p.getTalla(), p.getColor(), p.getPrecio(), p.getStock()});
+        }
+    }
+
+    // Limpia los campos de entrada de producto
+    private void limpiarCamposProducto() {
+        txtCodigo.setText("");
+        txtNombreProductos.setText("");
+        txtTalla.setText("");
+        txtPrecio.setText("");
+        txtCantidad.setText("");
+    }
 
     private void inicializarServicios() {
         this.ventaService = new VentaService(new VentaRepository(), new CalculadorTotalVenta());
